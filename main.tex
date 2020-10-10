@@ -120,6 +120,14 @@ In un team di sviluppo, un SCM permette di:
 \item tracciabilità: tutte le modifiche possono fare riferimento ad un'attività contenuta nel issue tracking system; in ogni istante è possibile capire che attività sono state effettuate in una specifica versione
 \end{itemize}
 
+\subsection{Utilizzo}
+Con il termine \emph{diff} si indica la differenza tra due versioni di uno stesso file (i.e. cambiamenti tra le righe del file). Un insieme esplicitamente validato di \emph{diff} è detto \emph{commit}. Un \emph{commit} è difatti una nuova versione della codebase, e può esistere localmente o in remoto. L'ultimo \emph{commit} nella history viene chiamato \emph{HEAD}. Questo viene utilizzato per verificare le differenze tra la codebase locale e quella remota. \\
+Un \emph{branch} è un puntatore ad un singolo commit. L'\emph{HEAD} fa parte del \emph{master branch}, ogni altro \emph{branch} può integrarsi con il \emph{master} a seguito di un \emph{merge}. \\
+L'attività di merging può essere gestita attraverso una \emph{Pull Request}, cioè una procedura di discussione e correzione a seguito della quale una branch può essere integrata con il master. \\
+Un \emph{fork} è una copia di una codebase, e permette di lavorare su tale copia liberamente, senza dover richiedere permessi di modifica alla repository originale. Una volta terminate le modifiche è possibile integrarle nella versione originale attraverso una Pull Request.
+\subsubsection*{Gitflow}
+Il \emph{Gitflow} è un'estensione del pattern \emph{Feature Branch Workflow}. Pensato per progetti di larga scale, il Gitflow prevede la strutturazione dello sviluppo su più branch, assegnando uno specifico ruolo ad ogni branch.
+ 
 \subsection{Tipi di VCS}
 \subsubsection*{Locali}
 Sono i più vecchi, registrano solo la storia dei cambiamenti utilizzando un \textit{version database} dove viene registrata tutta la storia dei file e salvando sul disco una serie di patch, rappresentanti il cambiamento tra una versione e l'altra. Tuttavia \underline{non gestiscono la condivisione}.
