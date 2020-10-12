@@ -274,4 +274,71 @@ Permette di confermare se la storia è completa e funziona come voluto. Sono un 
 La linea rossa è la stima, quella blu l'andamento reale. È comune che all'inizio si vada peggio del previsto, tuttavia è facile che poi si vada sotto la stima e si finisca in tempo.
 \end{minipage}
 
+\section{Git}
+Git è un software di controllo versione distribuito utilizzabile da interfaccia a riga di comando, creato da Linus Torvalds nel 2005.
+
+\subsection{Caratteristiche}
+\begin{itemize}
+    \item Branching and merging: favorisce lo sviluppo isolato
+    \item Piccolo e veloce: la maggior parte delle operazioni viene fatta in locale, solo la condivisione in remoto richiede connessione. È stato realizzato in C per essere leggero e veloce.
+    \item Distribuito: ci sono backup multipli della repository creati tramite la \textit{clone}
+    \item Integrità: ogni commit è identificato da un ID (checksum SHA-1 di 40-caratteri basato sul contenuto di file o della struttura della directory). Non è possibile cambiare un commit senza modificare l’ID del commit stesso e di i commit successivi.\\
+    I commit fanno sempre riferimento al commit padre (il precedente, quello da cui sono cominciate le modifiche).
+    \item Staging area: È stata aggiunta un’area di staging dove vengono validati i file modificati che potranno essere versionati con un commit
+    \item Free and open source: licenza GNU/GPL 2.0, sorgente gestito su github in repo pubblica.
+\end{itemize}
+Git salva le variazioni ai file sotto forma di istantanee, non diff. Infatti, ogni volta che si esegue un commit viene fatto uno snapshot dello stato attuale del file system. Inoltre, se un file non subisce modifiche questo sarà un puntatore alla versione precedente, in modo da risparmiare spazio.
+
+\subsection{Aree locali - Stato di un file}
+\begin{minipage}{0.4\textwidth}
+    In GIT i file della copia locale possono essere:
+    \begin{itemize}
+        \item Nella \textit{Working directory}, checked out, modificati ma non ancora validati (\textbf{Modified})
+        \item Nella \textit{Staging Area}, validati ma non ancora committati. Il commit salva uno snapshot di tutti i file presenti nella staging area (\textbf{Staged})
+        \item Nel \textit{Repository locale} (\textbf{Committed})
+    \end{itemize}
+    Un file appena creato è nello stato di \textbf{Untracked}.
+\end{minipage}
+\begin{minipage}{0.6\textwidth}
+    \begin{center}
+        \includegraphics[width=\textwidth]{img/git_command.jpg}
+    \end{center}
+\end{minipage}
+
+\subsection{Configurazione}
+È richiesta una configurazione iniziale dove vengono impostati l’username e l’email da usare per ogni commit:
+\begin{itemize}
+    \item \verb|git config --global user.name "Bugs Bunny"|
+    \item \verb|git config --global user.email bugs@gmail.com|
+\end{itemize}
+Ci sono tre livelli di visibilità per il config: system (tutti gli utenti), global (utente corrente), local (default, singola repository).
+È possibile invocare \verb|git config --list| per avere la lista di tutte le configurazioni.\\\\
+Per creare una repository locale si usa \verb|git init| dentro la cartella di un progetto esistente. Tutti i file sono quindi untracked. Viene creata una cartella \verb|.git| contenente la repo.\\
+È inoltre possibile clonare una repository remota con \verb|git clone <url>| o locale \verb|git clone <local_directory_path>|.
+
+\subsection{Altri comandi utili}
+\begin{itemize}
+    \item \verb|git reset HEAD <file_name>|: rimuove un file dalla staging area senza perdere le modifiche
+    \item \verb|git checkout -- <file_name>|: rimuove un file dalla staging area perdendo le modifiche
+    \item \verb|git status|: vedere lo stato dei file workspace o nella staging area
+    \item \verb|git diff|: per vedere cos’è stato modificato ma non ancora validato nella staging area
+    \item \verb|git diff --cached|: per vedere cos’è stato modificato nella staging area
+    \item \verb|git log|: mostra la lista dei cambiamenti (commit) nel repository locale
+    \item \verb|git log -2|: mostra ultimi due commit
+    \item \verb|git branch <name>|: crea un nuovo branch indipendente
+    \item \verb|git branch|: lista dei branch
+    \item \verb|git checkout <branch_name>|: cambia branch su cui si sta lavorando
+    \item \verb|git checkout master -> git merge <branch_name>|: effettuare attività di merge di un branch nel master
+    \item \verb|git remote|: lista dei repository remoti collegati (possono essere multipli)
+    \item \verb|git fetch origin|: recupero i nuovi branch e le modifiche dal remoto senza aggiornare la working copy (senza fare merge)
+    \item \verb|git pull origin master|: recupero le ultime modifiche dal repository remoto e aggiorno la working copy (fetch and merge)
+    \item \verb|git push origin master|: inviare le modifiche al repository remoto
+\end{itemize}
+
+\subsection{SVN vs GIT}
+SVN sta per \textit{subversion}. La principale differenza è che il primo è centralizzato, il secondo distribuito.
+Inoltre, in SVN una repository può contenere diversi progetti, questo perché il branching avviene sulle singole cartelle, non nella root. In git questo non è possibile, esiste una repo per ogni progetto.\\
+Un'altra importante differenza è che in assenza di connessione, in SVN non è possibile continuare il lavoro di versionamento, visto che il database è singolo e centralizzato.
+
+
 \end{document}
