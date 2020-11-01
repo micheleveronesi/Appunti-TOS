@@ -335,10 +335,220 @@ Per creare una repository locale si usa \verb|git init| dentro la cartella di un
     \item \verb|git push origin master|: inviare le modifiche al repository remoto
 \end{itemize}
 
+\subsubsection*{Commit keywords}
+\begin{itemize}
+    \item \verb|git commit -m "close #N"|: questo commit chiude la issue N
+    \item \verb|git commit -m "#N message|: aggiunge questo commit alla issue N, con relativo messaggio
+\end{itemize}
+
 \subsection{SVN vs GIT}
 SVN sta per \textit{subversion}. La principale differenza è che il primo è centralizzato, il secondo distribuito.
 Inoltre, in SVN una repository può contenere diversi progetti, questo perché il branching avviene sulle singole cartelle, non nella root. In git questo non è possibile, esiste una repo per ogni progetto.\\
 Un'altra importante differenza è che in assenza di connessione, in SVN non è possibile continuare il lavoro di versionamento, visto che il database è singolo e centralizzato.
+
+
+\section{Build Automation}
+\subsection{Definizione}
+È il processo di automazione della creazione di build. Ci sono 2 categorie:
+\begin{itemize}
+    \item \textbf{build-automation utility} (make, gradle, ant...), il cui scopo primario è quello di costruire eseguibili a partire dai diversi file sorgenti che compongono il progetto gestendo attività come compiling e linking
+    \item \textbf{build-automation servers} (continuos integration), i quali sono dei server che eseguono utility di build-automation in remoto
+\end{itemize}
+Il problema iniziale era quello di integrare il codice scritto (è difficile compilare un grande progetto tutto insieme). C'era la necessità di poter scaricare, compilare ed eseguire un progetto open-source per poter collaborare e provare le modifiche apportate.\\\\
+Vi sono 2 diversi tipi di build-tools:
+\begin{itemize}
+    \item \textbf{scripting tools:} tramite l'utilizzo di un linguaggio di scripting si definisce un automatismo (script, make, ant, gradle...)
+    \item \textbf{artefact oriented tools:} si basa sulla definizione e creazione di un artefatto (prodotto). Viene configurato il processo di build che è definito nello strumento (Apache Maven, NPM, ...)
+\end{itemize}
+\subsubsection*{Definizione processo di build}
+Il \textit{processo di build} è un insieme di passi che trasformano gli script di build, il codice sorgente, i file di configurazione, la documentazione e i test in un prodotto software distribuibile.
+
+\subsection{Caratteristiche (CRISP)}
+\begin{itemize}
+    \item \textbf{Completo:} indipendente da fonti non specificate nello script di build. Tutto quello che verrà utilizzato dev'essere specificato.
+    \item \textbf{Ripetibile:} accede ai file contenuti nel sistema di gestione del codice sorgente. Un'esecuzione ripetuta dallo stesso risultato. A partire da un commit devo essere in grado di produrre lo stesso artefatto
+    \item \textbf{Informativo:} Fornisce informazioni sullo stato del processo (se tutti i passi sono andati a buon fine o meno). Devo accorgermi se ha fallito, come e dove ha fallito
+    \item \textbf{Schedulabile:} programmabile ad una certa ora e fatto eseguire automaticamente. I prerequisiti affinché sia schedulabile sono le altre 4 caratteristiche
+    \item \textbf{Portabile:} indipendente il più possibile dall'ambiente di esecuzione (eseguibile su un server esterno)
+\end{itemize}
+
+\subsection{Apache Maven}
+\subsubsection{Definizione}
+È uno strumento di gestione di processo basato sul concetto del POM (project - object - model). Può gestire i processi di build, di documentazione, di reportistica a partire dalle informazioni presenti in un file chiamato POM.\\
+Viene usato per gestire progetti Java e sfrutta il paradigma \textit{"convention over configuration"}, il quale prevede che ci sia una configurazione minima che vada a descrivere i metadati del nostro progetto, ovvero dove si trovano i sorgenti. La configurazione completa è integrata nello strumento e va bene per la maggior parte dei progetti.\\
+Nella configurazione minima specifichiamo solo le caratteristiche del nostro progetto basandoci sul workflow e le configurazioni presenti nello strumento.
+
+\subsubsection{Caratteristiche di Maven}
+\begin{itemize}
+    \item \textbf{Build Tool:}  sono definite delle Build Lifecycle che permettono di configurare ed eseguire il processo di build (e altri processi). È quindi uno strumento di build e il processo di build è standard.
+    \item \textbf{Dependency Management:}  Le dipendenze di progetto vengono specificate nel file di configurazione (pom.xml). Maven si occupa di scaricarle in automatico da dei Repository remoti e salvarle in un repository locale. Tutte le dipendenze vengono identificate da una tripletta detta GAV (group ID - artefact ID - version ID).
+    \item \textbf{Remote Repositories:} sono stati definiti dei repository remoti dove sono presenti gran parte delle librerie di progetti opensource e dei plugin utilizzati da maven per implementare e estendere le fasi dei Build Lifecycle. La più famosa è Maven Central, tuttavia possiamo definire le nostre proprietarie.
+    \item \textbf{Universal Reuse of Build Logic:}  Le Build Lifecycle, i plugin maven permettono di definire in modo riusabile i principali aspetti richiesti per la gestione di progetto. Tra cui: l’esecuzione del processo di build, l’esecuzione di framework di test (p.es. Junit/TestNG), la creazione di template di progetto (p.es. Applicazioni Java Web o applicazioni costriuite con un determinato framework)
+\end{itemize}
+
+\subsubsection{Build Lifecycle}
+Maven si basa sul concetto di Build Lifecycle, ovvero il processo per fare build e distribuire un artefatto è ben definito. Questo significa che lo sviluppatore deve imparare un set ristretto di comandi per fare build di qualsiasi progetto Maven, e il file POM assicura che abbiano il risultato desiderato.\\
+Ci sono tre build lifecycle già integrati:
+\begin{itemize}
+    \item \textbf{default lifecycle:} ci permette di andare ad eseguire la compilazione ed esecuzione del nostro pacchetto
+    \item \textbf{clean lifecycle:} ci permette di andare a pulire la directory dopo il processo di build
+    \item \textbf{site lifecycle:} serve per creare la documentazione del nostro progetto sotto forma di sito web
+\end{itemize}
+\textbf{Build Lifecyle (default)}\\\\
+La default Build Lifecycle è composta dalle seguenti fasi (o goals):
+\begin{itemize}
+    \item \textit{validate:} controlla che il progetto abbia tutte le informazioni richieste per la fase successiva
+    \item \textit{compile:} attraverso i metadati e le dipendenze definite, Maven capisce il compilatore da usare, che dipendenze scaricare, come creare classpath e come compilare il progetto
+    \item \textit{test:} recupera le dipendenze di test, crea i classpath ed esegue i test di unità
+    \item \textit{package:} parte dai compilati generati precedentemente e crea il pacchetto (es. il file .jar in Java)
+    \item \textit{verify:} esegue i test di integrazione sul pacchetto generato
+    \item \textit{install:} installa il pacchetto generato nel nostro repository locale in modo da usarlo come dipendenza per altri pacchetti
+    \item \textit{deploy:} ci permette di condividere il progetto in un artefact repository e condividere il nostro pacchetto
+\end{itemize}
+Se un progetto è gestito con maven (ed è presente il file pom.xml) sarà possibile
+eseguire il uno dei processi (Build Lifecycle) invocando una delle fasi predefinite.\\
+In un qualsiasi progetto gestito con maven, invocando il comando
+\verb|mvn install|
+verrà effettuata la compilazione, eseguiti i test, costruito l’artefatto e copiato nel
+repository locale (eseguite tutte le fasi del Build lifecycle default precedenti a install).
+Le fasi vengono gestite da dei plugin maven (attraverso dei \textit{mojo}).
+
+\subsubsection{POM}
+Un Project Object Model è l'unità di lavoro fondmanetale di Maven. È in XML e contiene le informazioni in metadati del progetto e le configurazioni desiderate.\\
+Quando si esegue un task o un goal, Maven va a vedere le configurazioni nel file POM, se non presenti le va a recuperare nel POM di default di Maven, poi esegue il goal.\\
+Le configurazioni che possono essere specificate nel POM sono: le dipendenze del progetto, i plugin o i goal che possono essere eseguiti, i plugin che devono essere usati in determinati goal, dei profili che possono essere attivati ed eseguono determinate operazioni, dei metadati che descrivono la versione del progetto, come identificarlo tra le dipendenze, etc...\\
+Tutti i plugin sono mantenuti nell'artefact repository.\\
+
+\subsubsection{Altre utility di Maven}
+\textbf{Project Archetypes}\\
+Ci permette di andare a definire delle caratteristiche comuni per creare un progetto. Tipicamente se devo cominciare un progetto Java con Maven mi è scomodo ricordare la struttura delle cartelle standard, come creare il POM e come strutturare il progetto.\\
+Tramite questa feature, Maven ci mette a disposizione un catalogo di template di progetti da cui possiamo partire.\\\\
+\textbf{Mavel plugin e Mojo}\\
+Maven in realtà è un orchestratore di plugin Mojo, che vengono attribuiti alle varie fasi del processo di build.\\
+I plugin sono dei componenti che vanno a leggere le informazioni presenti nel POM del progetto e hanno la possibilità di andare a fare determinate attività, come compilazione, l'esecuzione dei test, l'analisi statica, la generazione dei javadoc, etc...\\
+È molto semplice creare plugin per Maven, grazie all'architettura convention over configuration.\\
+I plugin sono a loro volta artefatti Java.
+
+\section{Software Testing}
+\subsection{Definizione}
+\begin{itemize}
+    \item È un'attività di investigazione fatta principalmente per trovare informazioni relative alla qualità del software sotto test. Ha lo scopo di verificare se quello che è stato chiesto dal committente è stato implementato e non contenga errori.
+    \item È un processo composto da attività statiche e dinamiche che riguardano la preparazione, la pianificazione e la valutazione delle attività per verificare che un software soddisfi i requisiti e non abbia dei difetti.
+\end{itemize}
+Il $45\%$ dei difetti è introdotto dal programmatore, il $20\%$ durante l'analisi dei requisiti e il $25\%$ nella progettazione.
+
+\subsection{Categorie di testing}
+\begin{itemize}
+    \item \textit{Funzionale:} viene condotto per verificare che il prodotto rispetti i requisiti funzionali (richiesti dal committente)
+    \item \textit{Non funzionale:} il test fa riferimento a requisiti non funzionali (impliciti, necessari dal problema, non esplicitati dal committente)
+    \item \textit{Statico:} non richiedono che il codice venga eseguito, comprendono la revisione dei documenti
+    \item \textit{Dinamico:} richiede l'esecuzione del codice o parte di esso
+    \item \textit{Verifica:} il prodotto è stato realizzato secondo le specifiche (tecniche) e funziona correttamente. Cercare difetti per migliorare la qualità del software
+    \item \textit{Validazione:} il prodotto è stato realizzato rispettando le specifiche dell’utente (requisiti). Convalidare che il software sia conforme ai suoi obiettivi (fit for purpose)
+\end{itemize}
+
+\subsection{Processo di test}
+Deve essere parallelo al processo di sviluppo, fin dalla definizione dei documenti. Ecco le sue fasi:
+\begin{enumerate}
+    \item \textit{Test planning:} viene definito il text plan, il documento principale in cui vengono definite le operazioni di test da fare durante il progetto.
+    \item \textit{Test control:} sono le azioni correttive e di controllo da attuare nel caso in cui il piano non venga rispettato
+    \item \textit{Test analysis:} si decide cosa testare
+    \item \textit{Test design:} si decide come effettuare i test
+    \item \textit{Test implementation:} si definiscono i casi e gli script di test
+    \item \textit{Test execution:} viene effettuata l'attività di test
+    \item \textit{Checking result:} si controlla se il test è stato superato/fallito
+    \item \textit{Evaluating exit criteria:} si verifica se sono stati raggiunti i requisiti definiti nel text plan
+    \item \textit{Test results reporting:} si riporta il progresso rispetto agli exit criteria definiti nel text plan
+    \item \textit{Test closure:} chiusura del processo e definizione azioni di miglioramento per i test
+\end{enumerate}
+
+\subsection{Sette principi del testing}
+\subsubsection*{Il test mostra la presenza di difetti}
+Testare un'applicazione può rivelare che uno o più difetti esistono nell'applicazione, ma non può dimostrare che l'applicazione sia priva di errori. È solo possibile progettare casi di test per individuare il maggior numero di errori possibile.
+
+\subsubsection*{Il test esaustivo è impossibile}
+A meno che l'applicazione in prova abbia una struttura logica molto semplice e
+un input limitato, non è possibile testare tutte le possibili combinazioni di dati e
+scenari.\\
+Per questo motivo, il rischio e le priorità vengono utilizzati per concentrarsi
+sugli aspetti più importanti da testare.\\
+Le strategie per selezionare i test sono:
+\begin{itemize}
+    \item \textit{Risk based testing:} rischio, funzionalità che hanno impatto sul business
+    \item \textit{Requirement based:} controllo i requisiti coperti
+\end{itemize}
+
+\subsubsection*{Early testing}
+Avviare la fase di test il prima possibile permette di risparmiare sui costi del progetto. Prima troviamo il bug e meno ci costa. Il processo di test non deve essere eseguito quando il progetto è al termine, ma deve andare in parallelo con il processo di sviluppo.
+
+\subsubsection*{Defect clustering}
+Durante i test, si può osservare che la maggior parte dei difetti segnalati sono
+legati a un numero ridotto di moduli all'interno di un sistema.\\
+Un piccolo numero di moduli contiene la maggior parte dei difetti nel sistema, circa l'$80\%$ dei problemi si trova nel $20\%$ dei moduli.
+
+\subsubsection*{Paradosso del pesticida}
+Se continui a eseguire lo stesso set di test più e più volte (ad ogni nuova
+versione), siamo sicuri che non ci saranno più gli stessi difetti scoperti da quei
+casi di test.\\
+Poiché il sistema si evolve, molti dei difetti precedentemente segnalati vengono
+corretti. Ogni volta che viene risolto un errore o è stata aggiunta una nuova
+funzionalità, è necessario eseguire tutti i test (di non regressione) per
+assicurarsi che il nuovo software modificato non abbia interrotto vecchi errori.\\
+Tuttavia, anche questi casi di test di non regressione devono essere modificati
+per riflettere le modifiche apportate nel software per essere applicabili.\\
+Il set di test va modificato con l'evoluzione del nostro progetto.
+
+\subsubsection*{Il testing dipende dal contesto}
+Diverse metodologie, tecniche e tipi di test sono legati al tipo e alla natura
+dell'applicazione.\\
+Ad esempio, un'applicazione software in un dispositivo medico richiede più test
+di un software di giochi.\\
+Un software per dispositivi medici richiede test basati sul rischio, essere
+conformi con i regolatori dell'industria medica e possibilmente con specifiche
+tecniche di progettazione dei test.\\
+Un sito web molto popolare, deve superare rigorosi test delle prestazioni e
+test di funzionalità per assicurarsi che le prestazioni non siano influenzate dal
+carico sui server.
+
+\subsubsection*{Absence of errors fallacy}
+Solo perché il test non ha riscontrato alcun difetto nel software, non significa
+che il software sia perfetto e pronto per essere rilasciato.
+I test eseguiti sono stati davvero progettati per catturare il maggior numero di
+difetti? Il software corrispondeva ai requisiti dell'utente?\\
+\textbf{Bisogna bilanciare costi, benefici e tempo}.
+
+\subsection{V-model}
+\begin{minipage}{0.4\textwidth}
+Il processo di test è parallelo a quello di sviluppo, ogni fase dell'attività di sviluppo corrisponde ad una fase di test.
+\end{minipage}
+\begin{minipage}{0.6\textwidth}
+    \includegraphics[width=\textwidth]{img/vmodel.jpg}
+\end{minipage}
+
+\subsection{Tipi di test}
+\subsubsection*{Component testing (unit testing)}
+Verificano l’unità: il più piccolo sottosistema possibile (in Java: classe o metodo) che
+può essere testato separatamente, sono veloci da eseguire, non dipendono dall'ordine di esecuzione e ogni modifica del codice sorgente dovrebbe scatenare l’esecuzione degli unit test.\\
+Il sistema sotto test (SUT) è considerato come \textit{white box}, ovvero possiamo vedere il codice sorgente.
+
+\subsubsection*{Integration test}
+Verificano se sono rispettati i contratti di interfaccia tra più moduli o sub-system.\\
+I sub-systems possono essere:
+\begin{itemize}
+    \item Interni: prodotti da noi, già verificati dagli unit test
+    \item Esterni: altri componenti con cui integriamo il nostro progetto, es. database, filesystem
+\end{itemize}
+Questo tipo di test è più lento da configurare e da eseguire. Il SUT è white box.
+
+\subsubsection*{System testing}
+Verificano il comportamento dell'intero sistema. Il loro scopo principale è la verifica rispetto alle specifiche tecniche. Il sistema può essere sia white box che black box.\\
+Un tipo di system testing sono gli \textbf{smoke test}, il cui obiettivo è quello di trovare gli errori il prima possibile (prima della produzione) o eseguire altri test sul SUT. Verificano le funzionalità del SUT.
+
+\subsubsection*{Acceptance test}
+Il sistema è black box e sono eseguiti con il cliente finale. Serve a verificare che i requisiti siano stati implementati correttamente.
+
+\subsubsection*{Non-regression testing}
+Verificano che il comportamento del SUT rimanga almeno lo stesso rispetto alla versione precedente (non ci sia un deterioramento qualitativo), si focalizzano su un singolo bug per volta e assicurano che i bug corretti non si presentino ancora.
 
 
 \end{document}
