@@ -551,4 +551,181 @@ Il sistema è black box e sono eseguiti con il cliente finale. Serve a verificar
 Verificano che il comportamento del SUT rimanga almeno lo stesso rispetto alla versione precedente (non ci sia un deterioramento qualitativo), si focalizzano su un singolo bug per volta e assicurano che i bug corretti non si presentino ancora.
 
 
+\section{Unit Testing}
+\subsection{Definizione}
+In ingegneria del software, per unit testing (testing d'unità o testing unitario) si intende
+l'attività di testing (prova, collaudo) di singole unità software. Per unità si intende
+normalmente il minimo componente di un programma dotato di funzionamento
+autonomo; a seconda del paradigma di programmazione o linguaggio di programmazione,
+questo può corrispondere per esempio a una singola funzione nella programmazione
+procedurale, o una singola classe o un singolo metodo nella programmazione a oggetti.\\\\
+Come le altre forme di testing, lo unit testing può variare da completamente "manuale" ad
+automatico. Specialmente nel caso dello unit testing automatico, lo sviluppo dei test case
+(cioè delle singole procedure di test) può essere considerato parte integrante dell'attività
+di sviluppo (per esempio, nel caso dello sviluppo guidato da test).\\\\
+I test di unità sono del codice, prodotto dallo sviluppatore, che esercitano un’unità del
+programma.
+Per unità si intende una funzionalità atomica che può essere verificata in modo isolato,
+in modo da assicurare che il risultato del test non sia influenzato da altre unità.
+Nella programmazione ad oggetti un’unità può essere uno o più metodi di una classe, o
+un’istanza di una classe. Nella programmazione procedurale un’unità corrisponde ad una
+funzione.\\
+Vengono sviluppati dal programmatore che sviluppa le unità, per verificare
+l’assenza di alcuni errori, e documentare il comportamento dell’unità prodotta.
+
+\subsection{Proprietà desiderabili - A TRIP}
+Automatic - Thorough - Repeatable - Independent - Professional
+
+\subsubsection*{Automatic}
+I test di unità devono essere eseguiti automaticamente. In ogni progetto deve essere
+disponibile un “automazione a comando” che permetta a tutti di invocare e far eseguire tutti
+o una parte dei test di unità in modo semplice.\\
+Durante la fase di sviluppo del progetto è importante che i test possano eseguire:
+\begin{itemize}
+\item \textit{In modo rapido:} I test di unità devono essere semplici e la loro esecuzione non deve
+impiegare più di pochi secondi.
+\item \textit{Senza richiedere l’interazione umana:} Se un test di unità richiede che alcuni parametri
+siano inseriti, ogni volta, manualmente da uno sviluppatore, questo non permetterebbe
+di eseguire tutti i test del progetto in modo automatico a determinate ore del giorno.
+\item \textit{In modo autonomo:} L’automazione che effettua l’esecuzione dei test di unità deve essere in grado di capire quando e dove i test falliscono ed avvisare gli sviluppatori. In
+questo modo gli sviluppatori saranno interrotti, dall’attività lavorativa, solo quando uno o più test falliranno. Serve un metodo per far fallire la build se il test fallisce.
+\end{itemize}
+
+\subsubsection*{Thorough (esaustivi)}
+Dei buoni test di unità devono essere esaustivi e accurati, devono verificare il
+comportamento di qualsiasi parte del progetto che potrebbe creare degli errori.\\
+Esistono degli strumenti che permettono di misurare se ogni parte del progetto è stata eseguita durante la fase di test, e possono calcolare:
+\begin{itemize}
+\item La percentuale di righe di codice che vengono esercitate attraverso i test di unità nel progetto
+\item La percentuale di possibili diramazioni che vengono eseguiti dai test di unità
+\item Il numero di eccezioni che vengono controllate attraverso i test
+\item Altri dati che permettono di capire dove il progetto è carente di test di unità
+\end{itemize}
+Come si può intuire, non è detto che se in un progetto viene eseguito il 100\% del codice dai test di unità questo è privo di errori.
+
+\subsubsection*{Repeatable (ripetibili)}
+I test di unità devono produrre sempre lo stesso risultato con lo stesso input. I test non devono seguire un ordine.\\
+Per essere ripetibili, i test di unità devono avere l seguenti caratteristiche:
+\begin{itemize}
+\item \textit{Essere indipendenti dall’ordine di esecuzione:} L’ordine di esecuzione dei test di
+unità non deve influenzare il risultato. Per questo è necessario che i test siano
+indipendenti l'uno dall'altro. Un test non può essere precondizione di un altro.
+\item \textit{Essere indipendenti dall’ambiente di esecuzione:} L’esecuzione dei test non deve dipendere da risorse esterne al progetto o da risorse non gestite nel VCS. Se alcune unità devono utilizzare risorse esterne (p.es. database) è consigliato utilizzare la tecnica Mock Object per simulare il comportamento di queste componenti (oggetti finti che simulano il comportamento dei subsystem esterni, classe di simulazione). Esistono dei framework specifici per questo tipo di oggetti.
+\end{itemize}
+
+\subsubsection*{Independent (indipendenti)}
+I test di unità devono essere il più possibile indipendenti dall'ambiente di esecuzione,
+dagli elementi esterni al progetto e dall'ordine di esecuzione. Quando si scrive un
+test è consigliato verificare il comportamento di un singolo aspetto del progetto (in
+questo modo si riesce ad identificare univocamente un'errore). Questo non significa che
+un test di un'unità deve avere solo una asserzione, ma deve controllare solo un metodo
+o più metodi che realizzano un aspetto di una funzionalità del progetto.\\
+Se il test è indipendente il suo comportamento sarà ripetibile nel tempo, perché il suo
+comportamento non dipenderà dalle altre unità del progetto. La ripetibilità del test è un
+aspetto che permette di capire se il test è indipendente.
+
+\subsubsection*{Professional}
+Poiché i test di unità sono codice, devono essere scritti e mantenuti con la stessa
+professionalità del codice di produzione del progetto.\\
+Visto che i buoni test di unità devono essere esaustivi, è ragionevole che il numero di
+linee di codice per realizzare i test sia pari o a volte superiore delle linee di codice in
+produzione.
+
+\subsection{Framework per unit testing}
+Per creare i test di unità sono necessari i seguenti componenti:
+\begin{itemize}
+\item Un modo per configurare l’ambiente di esecuzione del test
+\item Un modo per selezionare un test o un insieme di test da eseguire
+\item Un modo per analizzare i valori aspettati, prodotti dalle unità
+\item Un modo standard per eseguire ed esprimere se il test è stato superato, se è fallito o
+se sono stati prodotti degli errori
+\end{itemize}
+Nel corso si vedrà JUnit 4, il quale ha tutte le caratteristiche elencate.
+% TODO: integrare con link delle slide
+
+\subsection{Come verificare i risultati}
+Verificare se i risultati che essa produce sono corretti.
+Per corretto si intende che il risultato atteso sia uguale al risultato prodotto dall’unità.
+Capita che i requisiti non sono chiari, o possono cambiare nel tempo. In questi casi i test
+di unità sono un buon punto di partenza per documentare nel codice, come uno
+sviluppatore ha interpretato i requisiti e descrivere il comportamento delle unità
+realizzate.\\
+I test di unità descrivono come le unità che abbiamo prodotto dovrebbero funzionare.
+
+\subsubsection*{Boundary conditions (CORRECT)}
+\begin{itemize}
+\item Conformance - I valori sono conformi al formato atteso? [ A+1 ] [1-2]
+\item Ordering - I valori seguono o non seguono un ordine? [++ 1 2 3 ]
+\item Range - I valori sono all’interno di un valore di minimo e massimo appropriato?
+[2147483647 + 2]
+\item Reference - I valori possono provenire da codice che si riferisce a dati esterni che non
+sono sotto il controllo del codice?
+\item Existence - I valori esistono (non sono nulli, non sono zero, sono presenti in un
+determinato insieme)? [null]
+\item Cardinality - I valori sono nella quantità desiderata? [1 + 2 + 3 + ]
+\item Time - I valori rispettano un ordine temporale?
+\end{itemize}
+Con il termine valore si fa riferimento sia ai parametri di input dei metodi di un'unità, che ai dati interni all'unità e ai risultati che questa produce.
+
+\subsubsection*{Check inverse relationship}
+Alcune unità possono o devono essere verificati tramite l'applicazione della loro
+funzionalità inversa.\\
+Esempi:
+\begin{itemize}
+\item Calcolare la radice quadrata di un numero. Per testare se la radice quadrata è corretta è
+possibile elevare al quadrato il risultato ritornato dall'unità e confrontarlo con il dato di
+partenza.
+\item Inserimento di un un elemento in una pila. Il modo più semplice per verificare se
+l'inserimento è andato a buon fine è quello di effettuare un prelevamento dalla pila e
+controllare che l'elemento ritornato sia l'elemento di partenza.
+\end{itemize}
+
+\subsubsection*{Cross-check Using Other Means}
+Utilizzare uno strumento esistente (oracolo) per verificare se la nuova unità ha lo stesso
+comportamento.\\
+Esempio: migrazione da un vecchio sistema ad uno nuovo appena realizzato,
+si utilizza il vecchio sistema per verificare che quello nuovo abbia lo stesso
+comportamento.
+
+\subsubsection*{Force error contitions}
+Nel mondo reale gli errori accadono. Una buona norma, per creare un buon progetto, è
+quello di ricreare le condizioni di errore e verificare che il progetto funzioni come ci si
+aspetta in queste condizioni.
+
+\subsubsection*{Performance caratteristics}
+I test di unità devono essere veloci perché devono poter essere eseguiti molto spesso, sia nelle workstation degli sviluppatori che negli automation server.
+
+\subsection{Test driven development}
+Il test-driven development (abbreviato in TDD), è un modello di sviluppo del software che prevede
+che la stesura dei test automatici avvenga prima di quella del software che deve essere sottoposto
+a test, e che lo sviluppo del software applicativo sia orientato esclusivamente all'obiettivo di
+passare i test automatici precedentemente predisposti.
+Più in dettaglio, il TDD prevede la ripetizione di un breve ciclo di sviluppo in tre fasi, detto "ciclo TDD":
+\begin{enumerate}
+\item Nella prima fase (detta "fase rossa"), il programmatore scrive un test automatico per la nuova
+funzione da sviluppare, che deve fallire in quanto la funzione non è stata ancora realizzata.
+\item Nella seconda fase (detta "fase verde"), il programmatore sviluppa la quantità minima di codice
+necessaria per passare il test.
+\item Nella terza fase (detta "fase grigia" o di refactoring), il programmatore esegue il refactoring del codice per adeguarlo a determinati standard di qualità.
+\end{enumerate}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 \end{document}
