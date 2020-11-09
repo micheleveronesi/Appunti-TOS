@@ -709,16 +709,41 @@ necessaria per passare il test.
 \item Nella terza fase (detta "fase grigia" o di refactoring), il programmatore esegue il refactoring del codice per adeguarlo a determinati standard di qualità.
 \end{enumerate}
 
+\section{Analisi statica del codice}
+\subsection{Definizione}
+L'analisi statica del codice viene effettuata senza eseguire il software, a differenza dell'analisi dinamica.\\
+Si va a vedere che vengano rispettati gli standard e si cercano bug che possono essere trovati dallo sviluppatore che legge il codice. Viene effettuata tramite strumenti automatizzati, i quali mostrano una lista di warning riguardo i problemi del codice.\\
+\textbf{Teoria delle finestre rotte:} Si segnalano errori minori e poco rilevanti in modo da evitare cose più gravi, mantenendo ordine su tutto il progetto.
 
+\subsection{Tool utilizzati}
+Sono simili ad un correttore ortografico, permettono di:
+\begin{itemize}
+    \item Imporre il rispetto di convenzioni e stili
+    \item Verificare la congruità della documentazione
+    \item Controllare metriche ed indicatori (complessità ciclomatica, grafo delle dipendenze, numerosità delle linee di codice): l'indice di complessità ci suggerisce quanti test unitari sono necessari per quella parte di codice
+    \item Ricercare codice copiato in più punti (fare copia incolla è una pratica sbagliata)
+    \item Ricercare errori comuni nel codice
+    \item Misurare la percentuale di codice testato
+    \item Ricercare indicatori di parti incomplete (p. es. tag)
+\end{itemize}
+Ci sono diversi tool per questo scopo, il più avanzato è SonarQube.
 
-
-
-
-
-
-
-
-
+\subsubsection*{SonarQube}
+Può essere integrato nel workflow esistente per garantire un'ispezione del codice continua tra i vari branch del progetto e le pull request. Alcune sue funzionalità sono:
+\begin{itemize}
+    \item Storicizza l’andamento della qualità
+    \item Permette di verificare se c’è un miglioramento o un deterioramento del progetto nel tempo
+    \item Permette di stabilire un quality profile (un insieme di regole) da applicare al progetto
+    \item Permette di stabilire un quality gate per verificare se la qualità del progetto rispetta determinati standard
+    \item Le issue segnalate vengono classificate in base alla gravità (Blocker, Critical, Major, Minor, info)
+    \item Le issue vengono classificate in:
+    \begin{itemize}
+        \item \textit{Vulnerabilità:}  Permette di valutare il livello di sicurezza del progetto (security)
+        \item \textit{Bug:} Permette di valutare l’affidabilità del progetto (Reliability)
+        \item \textit{Code smell:}  Permette di valutare la mantenibilità del progetto (Maintainability)
+    \end{itemize}
+    \item Permette di revisionare le issue segnalate e segnare i falsi positivi
+\end{itemize}
 
 
 
