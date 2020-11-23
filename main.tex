@@ -745,12 +745,199 @@ Può essere integrato nel workflow esistente per garantire un'ispezione del codi
     \item Permette di revisionare le issue segnalate e segnare i falsi positivi
 \end{itemize}
 
+\section{Continuous Integration}
+\subsection{Definizione}
+Nell'ingegneria del software, l'integrazione continua o continuous integration è una pratica che si applica
+in contesti in cui lo sviluppo del software avviene attraverso un sistema di versioning. Consiste
+nell'allineamento frequente (ovvero molte volte al giorno) dagli ambienti di lavoro degli
+sviluppatori verso l'ambiente condiviso (mainline, VCS). Il concetto è stato originariamente proposto nel
+contesto dell'extreme programming (XP), come contromisura preventiva per il problema dell' "integration
+hell" (le difficoltà dell'integrazione di porzioni di software sviluppati in modo indipendente su lunghi
+periodi di tempo e che di conseguenza potrebbero essere significativamente divergenti). Si cerca perciò di fare più
+volte possibile l'integrazione.\\
+Il CI è stato originariamente concepito per essere complementare rispetto ad altre pratiche, in particolare
+legate al Test Driven Development (sviluppo guidato dai test, TDD). In particolare, si suppone
+generalmente che siano stati predisposti test automatici che gli sviluppatori possono eseguire
+immediatamente prima di rilasciare i loro contributi verso l'ambiente condiviso, in modo da garantire
+che le modifiche non introducano errori nel software esistente. Per questo motivo, il CI viene spesso
+applicato in ambienti in cui siano presenti sistemi di build automatico (Maven) e/o esecuzione automatica di
+test, come Jenkins.\\\\
+La CI non rimuove tutti i bug, ma rende molto più facile trovarli e rimuoverli in seguito. Inoltre consente a un team di intensificare l'attività di sviluppo e test, integrando gli sviluppi il più spesso possibile. È una \textit{pratica agile} in cui i membri di un team integrano il loro lavoro frequentemente, di solito giornalmente o più volte al giorno.
 
+\subsection{Motivazioni}
+Prima della nascita della CI, in molti progetti vi erano questi problemi:
+\begin{itemize}
+    \item Per lunghi periodi di tempo, durante il processo di sviluppo, il progetto non è in uno
+stato funzionante o in uno stato utilizzabile. Sopratutto in progetti dove si sviluppa in un
+singolo ramo di sviluppo (centralized work-flow)
+    \item Nessuno è interessato a provare ad eseguire l'intera applicazione fino a quando non è
+finito il processo di sviluppo
+    \item In questi progetti spesso viene pianificata la fase di integrazione alla fine del processo di
+sviluppo. In questa fase gli sviluppatori effettuano attività di merge ed effettuano attività di
+verifica e validazione
+\end{itemize}
+Tutto questo comporta l'\textit{integration hell}: La fase di integrazione può richiedere molto tempo, e nel caso peggiore, nessuno ha modo di prevedere quando terminerà questa fase (solitamente termina quando non abbiamo più tempo, e non quando abbiamo risolto tutti i problemi), di conseguenza quando l'applicazione può essere rilasciata.\\
+In pratica si sposta il problema della verifica in avanti, dilatandone i tempi richiesti.
 
+\subsection{Prerequisiti}
+Per implementare la pratica di CI è necessario che:
+\begin{itemize}
+    \item Il codice del progetto venga gestito in un VCS
+    \item Il processo di build del progetto sia automatico
+    \item Il processo di build esegua delle verifiche automatiche (test di unità, test di integrazione, analisi statica del codice e altre verifiche)
+    \item il team di sviluppo adotti correttamente questa pratica
+    \item (Opzionale) Un sistema automatico dove eseguire il processo di build ad ogni integrazione. L'integrazione potrebbe avvenire attraverso le pull request, il responsabile della repository esegue manualmente le verifiche ed accetta o meno la richiesta. Tuttavia è preferibile l'automatismo per questa attività.
+\end{itemize}
 
+\subsection{Processo}
+\subsubsection{Visione generale}
+\begin{itemize}
+    \item Al completamento di un'attività viene costruito il prodotto: ogni volta che uno sviluppatore invia un commit al VCS viene eseguito il processo di build automation(compilazione e test).
+    \item Se il processo di costruzione fallisce l'attività non continua fino a che il prodotto non viene riparato.
+    \item Se non è possibile riparare il prodotto immediatamente (in pochi minuti) si ritorna all'ultima versione funzionante, per evitare che altre persone vadano a lavorare su una versione non funzionante.
+\end{itemize}
+In questo modo si assicura la presenza di un prodotto consistente potenzialmente pronto per essere validato e rilasciato
 
+\subsubsection{In dettaglio}
+\begin{enumerate}
+    \item Controllo se il processo di build è in esecuzione nel sistema di CI. Se è in esecuzione aspetto che finisca, se fallisce lavoro con il team in modo da sistemare il problema.
+    \item Quando il processo di build ha terminato con successo, aggiorno il codice nel mio workspace con il codice del VCS ed effettuo l’integrazione in locale
+    \item Eseguo il processo di build in locale in modo da verificare che tutto funzioni correttamente
+    \item Se il processo di build termina con successo invio le modifiche al VCS
+    \item Attendo che il sistema di CI esegua il processo di build con i miei cambiamenti
+    \item Se il processo di buil fallisce mi fermo con le attività di sviluppo, e lavoro per sistemare il problema in locale e riprendo dal passo 3
+    \item Se il processo di build termina con successo passo allo sviluppo dell’attività successiva
+\end{enumerate}
+Nella pratica è il sistema di CI che ci manda le notifiche (tramite e-mail), in modo da ridurre i tempi morti.
 
+\subsection{Best practices}
+\subsubsection*{Integrare frequentemente gli sviluppi}
+Integrare frequentemente gli sviluppi, più di una volta al giorno. \\
+In questo modo:
+\begin{itemize}
+    \item le modifiche da integrare saranno poche e più facile da gestire
+    \item Se viene segnalato un errore dall’esecuzione del processo di build sarà più semplice
+identificare il codice che ha introdotto l’errore (che sarà presente nei commit che
+hanno fatto scatenare il processo di build)
+\end{itemize}
+Per poter integrare frequentemente gli sviluppi è richiesto che il progetto venga
+scomposto in tante attività brevi (framework scrum).
 
+\subsubsection*{Creare una suite di test automatici robusti}
+Se non vengono eseguiti dei test automatici per verificare e validare il progetto, il
+processo di build può solo verificare se il codice integrato compila correttamente.\\
+I test che possono essere eseguiti nel processo di CI sono:
+\begin{itemize}
+    \item i testi di unità
+    \item i test di integrazione di subsystem interni
+    \item analisi statica del codice
+\end{itemize}
+
+\subsubsection*{Tenere i processi di build e test corto}
+Nella CI il processo di Build viene eseguito molto frequentemente (ad ogni integrazione). Se questo è lento:
+\begin{itemize}
+    \item Gli sviluppatori smetteranno di eseguire il processo di build e i test prima di inviare le modifiche al VCS, perciò inizieranno a generare più build in errore, quindi perderà di credibilità il processo.
+    \item  Il processo di integrazione continua richiederà così tanto tempo che si verificheranno più commit nel momento in cui è possibile eseguire nuovamente la build, perciò sarà più difficile identificare cosa ha fatto fallire la build, perché il delta delle modifiche che avremo sarà troppo grande.
+    \item Si disincentiva l’invio frequente delle modifiche al VCS.
+\end{itemize}
+Se abbiamo un processo di compilazione troppo lento significa che o abbiamo una macchina con poche risorse o che il nostro progetto è diventato troppo grande, bisogna quindi suddividerlo in moduli.
+
+\subsubsection*{Gestire il proprio ambiente di sviluppo e quello condiviso}
+Ogni sviluppatore deve essere in grado di:
+\begin{itemize}
+    \item Eseguire localmente il processo di build e test e deploy, per questo nel VCS devono essere gestiti:
+    \begin{itemize}
+        \item codice di produzione
+        \item codice di test
+        \item script richiesti per configurare l’ambiente dove eseguire il progetto
+    \end{itemize}
+    \item Always Be Prepared to Revert to the Previous Revision: Scaricare le modifiche dal VCS e essere in grado di ripristinare il progetto ad uno stato consistente.
+    \item Never Go Home on a Broken Build: Verificare l’esito della compilazione nel CI
+server. Se il processo di CI fallisce lo sviluppatore deve essere in grado o di
+risolvere il problema o di ripristinare la versione del VCS all’ultimo stato consistente (per non impattare le altre attività di sviluppo).
+\end{itemize}
+
+\subsubsection*{Riparare le build rotte immediatamente}
+\textit{"Niente ha più priorità rispetto ad una build che fallisce"}.\\
+Il tempo per ripristinare lo stato del progetto deve essere limitato. Se non è possibile
+correggere l’errore che ha fatto fallire la build velocemente, ripristinare lo stato del VCS
+all’ultima versione funzionante.\\
+Non è ammesso correggere il problema commentano le verifiche che hanno fatto fallire la build.
+
+\subsubsection*{Trasparenza: tutti possono vedere cosa succede}
+Lo stato della build deve essere pubblicato in un servizio visibile a tutto il team del
+progetto.\\
+Ogni componente del team deve essere in grado di capire lo stato del progetto e capire
+qual’è l’ultima versione in cui è stato eseguito il processo di build con successo.\\
+Se il processo di build fallisce deve essere possibile:
+\begin{itemize}
+    \item identificare chi ha introdotto l’errore
+    \item avere a disposizione un log per identificare quale parte del processo di build è fallita
+    \item avere a disposizione la lista dei commit che hanno introdotto l’errore (capire qual era l'ultima versione funzionante e quale commit ha fatto uscire l'errore)
+\end{itemize}
+Il sistema di continuous integreation deve poter avvisare (con delle notifiche) i
+componenti del team ad ogni cambio di stato del processo (da successo a fallimento,
+da fallimento a successo).
+
+\section{Artifact Repository}
+\subsection{Definizione}
+La repository dei prodotti contiene l'artefatto che vogliamo rilasciare, ottimizzato per gestire il mantenimento e il download di questi. Centralizza la gestione di tutti i file binari e memorizza i metadati di questi (branch di provenienza, autori, stato del pacchetto, etc).\\
+Nella pratica c'è la necessità di storicizzare i binari rilasciati dal processo di build, che verranno poi utilizzati nella pipeline, ovvero la modellazione sotto forma di processo di sviluppo e rilascio dell'applicazione.\\
+I VCS sono fatti per gestire file sorgenti e non binari, che andrebbero a rallentare il processo di continuous integration. Per questo si usano gli artifact repository, che trattano i file in modo diverso dai VCS (visto che sono binari e non sorgenti).\\
+Maven Central è un artifact repository pubblico, un'azienda può scegliere di utilizzare solo il suo interno privato.
+
+\subsection{Caratteristiche del repository}
+\begin{itemize}
+    \item Ambiente dove depositare e pubblicare i prodotti
+    \item Agisce da intermediario per scaricare prodotti da depositi esterni
+    \item Permette di effettuare ricerche e reperire informazioni riguardanti i prodotti
+    \item Permette di gestire e associare permessi d’accesso sui prodotti
+    \item Permette di segnalare problemi di vulnerabilità su prodotti (si collegano ai database di vulnerabilità e controllano gli artefatti)
+    \item Permette di verificare problemi legati a licenze (dipendenze con prodotti terzi)
+    \item Permette di documentare gli artefatti con dei metadati (p.es pom.xml)
+\end{itemize}
+
+\subsection{Caratteristiche degli artefatti}
+Possibilità di distinguere univocamente un artefatto (group ID - artifact ID - versione del pacchetto).\\
+Metadati che permettono di capire se (p. es. pom.xml):
+\begin{itemize}
+    \item Artefatto di produzione/sviluppo (politiche di gestioni differenti)
+    \item Riferimento del commit nel VCS da cui è stato creato l’artefatto
+    \item Informazioni delle licenze
+    \item Informazioni delle dipendenze
+    \item MD5, SHA1 per garantire l’autenticità dell’artefatto
+    \item Identificativo univoco
+\end{itemize}
+
+\subsection{Maven repository management}
+\textbf{Tipi di repository}
+\begin{itemize}
+    \item \textit{Proxy Remote Repositories:} Possibilità di configurare il repository interno in modo da
+recuperare gli artefatti da repository esterni. Se l’artefatto non è presente nel
+repository interno viene consultato il repository esterno
+    \item \textit{Hosted Internal Repositories:} Possibilità di condividere all'interno di un’organizzazione
+artefatti di terze parti che hanno vincoli di licenza o artefatti creati internamente all'azienda e che devono restare interni (p.es. Dirver JDBC)
+\end{itemize}
+\textbf{Tipi di artefatti}
+\begin{itemize}
+    \item \textit{Release Artifacts:} Gli artefatti di tipo Release solitamente possono essere rilasciati una
+sola volta e vengono mantenuti nel repository (altrimenti non si può più verificare l'autenticità del pacchetto).
+    \item \textit{Snapshot Artifacts}: Gli artefatti in fase di sviluppo possono essere rilasciati più volte.
+Possono essere eliminati (e mantenuta la versione più recente). Di solito contengono
+il la Keyworkd SNAPSHOT e il timestamp.
+\end{itemize}
+
+\subsubsection*{Perché usare un Maven Repository Interno}
+\begin{itemize}
+    \item \textit{Velocità del processo di Build:} Le dipendenze e gli artefatti di tipo plugin utilizzati nel
+processo di build vengono scaricati dalla rete interna
+    \item \textit{Maggiore stabilità e controllo:} I repository gestiti possono essere analizzati e si può
+decidere di vietare l’utilizzo di determinati artefatti per evitare problemi di sicurezza. È
+possibile distribuire le versioni ufficiali e certificate degli artefatti di terze parti. È più
+semplice fare analisi statiche come compatibilità della licenza del prodotto con le dipendenze, analisi legate alla sicurezza, analisi d'impatto, etc...
+    \item \textit{Facilitano la collaborazione:} Si evita di far creare gli artefatti dal VCS ed è più semplice
+identificare le versioni di rilascio certificate, non bisogna ripete il processo di build ogni volta per ogni pacchetto.
+\end{itemize}
 
 
 \end{document}
